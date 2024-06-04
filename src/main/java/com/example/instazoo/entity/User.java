@@ -38,8 +38,6 @@ public class User {
     @Column(updatable = false)
     private LocalDateTime createdDate;
 
-    private Collection<? extends GrantedAuthority> authorities;
-
     public User() {
 
     }
