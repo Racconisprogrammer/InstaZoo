@@ -2,6 +2,7 @@ package com.example.instazoo.security;
 
 import com.example.instazoo.security.jjwt.JWTAuthenticationEntryPoint;
 import com.example.instazoo.security.jjwt.JWTAuthenticationFilter;
+import com.example.instazoo.security.jjwt.JWTTokenProvider;
 import com.example.instazoo.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         jsr250Enabled = true,
         proxyTargetClass = true
 )
+@RequiredArgsConstructor
 public class SecurityConfig {
-    @Autowired
-    private JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JWTTokenProvider jwtTokenProvider;
 
 
     @Bean
@@ -45,6 +46,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
@@ -54,12 +56,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request.requestMatchers(SecurityConstants.SIGN_UP_URLS).permitAll()
                         .anyRequest().authenticated())
                 .anonymous(AbstractHttpConfigurer::disable)
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JWTAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    @Bean
-    public JWTAuthenticationFilter jwtAuthenticationFilter() {
-        return new JWTAuthenticationFilter();
-    }
 }

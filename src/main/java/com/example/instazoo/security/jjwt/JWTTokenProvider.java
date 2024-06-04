@@ -2,12 +2,13 @@ package com.example.instazoo.security.jjwt;
 
 
 import com.example.instazoo.entity.User;
+import com.example.instazoo.security.CustomUserDetails;
 import com.example.instazoo.security.SecurityConstants;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureAlgorithm;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.PrePersist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -30,7 +31,7 @@ public class JWTTokenProvider {
     }
 
     public String generateToken(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         Date now = new Date(System.currentTimeMillis());
         Date expiration = new Date(now.getTime() + SecurityConstants.EXPIRATION_TIME);
 
