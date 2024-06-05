@@ -1,26 +1,26 @@
 package com.example.instazoo.service;
 
-import com.example.instazoo.repository.UserRepository;
+import com.example.instazoo.entity.User;
 import com.example.instazoo.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Lazy))
 public class CustomUserDetailsService implements UserDetailsService {
+    private final UserService userService;
 
-    private final UserRepository userRepository;
 
     @Override
     public CustomUserDetails loadUserByUsername(String username) {
-        return userRepository.findUserByEmail(username).map(CustomUserDetails::new)
-                .orElseThrow(()-> new UsernameNotFoundException("Username not found with username " + username));
+        User user = userService.getUserByEmail(username);
+        return new CustomUserDetails(user);
     }
 
     public CustomUserDetails loadUserById(Long id) {
-        return userRepository.findUserById(id).map(CustomUserDetails::new).orElse(null);
+        User customUserDetails = userService.getUserById(id);
+        return new CustomUserDetails(customUserDetails);
     }
 }

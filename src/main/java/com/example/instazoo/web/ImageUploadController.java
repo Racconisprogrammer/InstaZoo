@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("api/image")
+@RequestMapping("/api/image")
 @CrossOrigin
 @RequiredArgsConstructor
 public class ImageUploadController {

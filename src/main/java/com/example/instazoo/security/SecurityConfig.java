@@ -1,5 +1,6 @@
 package com.example.instazoo.security;
 
+import com.example.instazoo.repository.UserRepository;
 import com.example.instazoo.security.jjwt.JWTAuthenticationEntryPoint;
 import com.example.instazoo.security.jjwt.JWTAuthenticationFilter;
 import com.example.instazoo.security.jjwt.JWTTokenProvider;
@@ -22,11 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(
-        securedEnabled = true,
-        jsr250Enabled = true,
-        proxyTargetClass = true
-)
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -50,14 +47,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(request -> request.requestMatchers(SecurityConstants.SIGN_UP_URLS).permitAll()
+                        .anyRequest().authenticated())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                .authorizeHttpRequests(request -> request.requestMatchers(SecurityConstants.SIGN_UP_URLS).permitAll()
-                        .anyRequest().authenticated())
+
                 .anonymous(AbstractHttpConfigurer::disable)
                 .addFilterBefore(new JWTAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 
 }
